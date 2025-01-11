@@ -1,6 +1,6 @@
 # 概要
 Counter-Strike: Source用のシンプルな外部チート。
-<img src="CSS_External.png" width="80%">
+<img src="CSS_External.png" width="100%">
 
 ## 機能
 * ESP
