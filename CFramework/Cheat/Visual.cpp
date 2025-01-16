@@ -116,16 +116,15 @@ void CFramework::RenderESP()
             if (g.g_ESP_BoxFilled)
                 ImGui::GetBackgroundDrawList()->AddRectFilled(ImVec2(left, top), ImVec2(right, bottom), ESP_Filled);
 
+            // Shadow
+            DrawLine(ImVec2(left - 1, top - 1), ImVec2(right + 2, top - 1), ESP_Shadow, 1.f);
+            DrawLine(ImVec2(left - 1, top), ImVec2(left - 1, bottom + 2), ESP_Shadow, 1.f);
+            DrawLine(ImVec2(right + 1, top), ImVec2(right + 1, bottom + 2), ESP_Shadow, 1.f);
+            DrawLine(ImVec2(left - 1, bottom + 1), ImVec2(right + 1, bottom + 1), ESP_Shadow, 1.f);
+
             switch (g.g_ESP_BoxType)
             {
             case 0:
-                // Shadow
-                DrawLine(ImVec2(left - 1, top - 1), ImVec2(right + 2, top - 1), ESP_Shadow, 1.f);
-                DrawLine(ImVec2(left - 1, top), ImVec2(left - 1, bottom + 2), ESP_Shadow, 1.f);
-                DrawLine(ImVec2(right + 1, top), ImVec2(right + 1, bottom + 2), ESP_Shadow, 1.f);
-                DrawLine(ImVec2(left - 1, bottom + 1), ImVec2(right + 1, bottom + 1), ESP_Shadow, 1.f);
-
-                // Main
                 DrawLine(ImVec2(left, top), ImVec2(right, top), color, 1.f);
                 DrawLine(ImVec2(left, top), ImVec2(left, bottom), color, 1.f);
                 DrawLine(ImVec2(right, top), ImVec2(right, bottom), color, 1.f);
@@ -137,7 +136,7 @@ void CFramework::RenderESP()
                 DrawLine(ImVec2(left, top), ImVec2(left, top + bScale), color, 1.f); // Left
                 DrawLine(ImVec2(left, bottom), ImVec2(left, bottom - bScale), color, 1.f);
                 DrawLine(ImVec2(right, top), ImVec2(right, top + bScale), color, 1.f); // Right
-                DrawLine(ImVec2(right, bottom), ImVec2(right, bottom - bScale), color, 1.f);
+                DrawLine(ImVec2(right, bottom), ImVec2(right + 1, bottom - bScale), color, 1.f);
                 DrawLine(ImVec2(left, bottom), ImVec2(left + bScale, bottom), color, 1.f); // Bottom
                 DrawLine(ImVec2(right, bottom), ImVec2(right - bScale, bottom), color, 1.f);
                 break;
@@ -150,38 +149,41 @@ void CFramework::RenderESP()
             // 全てのBoneをvectorに格納
             std::vector<Vector3> BoneList = pEntity->GetAllBones();
 
-            // 頭の円をレンダリング
-            Vector2 pHead, pNeck;
-            if (!WorldToScreen(ViewMatrix, g.g_GameRect, BoneList[HEAD], pHead) ||
-                !WorldToScreen(ViewMatrix, g.g_GameRect, BoneList[NECK], pNeck))
-                continue;
-
-            Circle(ImVec2(pHead.x, pHead.y), pNeck.y - pHead.y, color);
-
-            // 線を引くためのペアを作成する
-            const Vector3 skeleton_list[][2] = {
-                { BoneList[NECK], BoneList[PELVIS] },
-                { BoneList[NECK], BoneList[LEFT_SHOULDER] },
-                { BoneList[LEFT_SHOULDER], BoneList[LEFT_ELBOW] },
-                { BoneList[LEFT_ELBOW], BoneList[LEFT_HAND] },
-                { BoneList[NECK], BoneList[RIGHT_SHOULDER] },
-                { BoneList[RIGHT_SHOULDER], BoneList[RIGHT_ELBOW] },
-                { BoneList[RIGHT_ELBOW], BoneList[RIGHT_HAND] },
-                { BoneList[PELVIS], BoneList[LEFT_KNEE] },
-                { BoneList[LEFT_KNEE], BoneList[LEFT_ANKLE] },
-                { BoneList[PELVIS], BoneList[RIGHT_KNEE] },
-                { BoneList[RIGHT_KNEE], BoneList[RIGHT_ANKLE] }
-            };
-
-            // WorldToScreenを行い各ペアをレンダリングする.
-            for (int j = 0; j < 11; j++)
+            if (BoneList.size() == 32)
             {
-                Vector2 vOut0, vOut1;
-                if (!WorldToScreen(ViewMatrix, g.g_GameRect, skeleton_list[j][0], vOut0) ||
-                    !WorldToScreen(ViewMatrix, g.g_GameRect, skeleton_list[j][1], vOut1))
-                    break;
+                // 頭の円をレンダリング
+                Vector2 pHead, pNeck;
+                if (!WorldToScreen(ViewMatrix, g.g_GameRect, BoneList[HEAD], pHead) ||
+                    !WorldToScreen(ViewMatrix, g.g_GameRect, BoneList[NECK], pNeck))
+                    continue;
 
-                DrawLine(ImVec2(vOut0.x, vOut0.y), ImVec2(vOut1.x, vOut1.y), color, 1.f);
+                Circle(ImVec2(pHead.x, pHead.y), pNeck.y - pHead.y, color);
+
+                // 線を引くためのペアを作成する
+                const Vector3 skeleton_list[][2] = {
+                    { BoneList[NECK], BoneList[PELVIS] },
+                    { BoneList[NECK], BoneList[LEFT_SHOULDER] },
+                    { BoneList[LEFT_SHOULDER], BoneList[LEFT_ELBOW] },
+                    { BoneList[LEFT_ELBOW], BoneList[LEFT_HAND] },
+                    { BoneList[NECK], BoneList[RIGHT_SHOULDER] },
+                    { BoneList[RIGHT_SHOULDER], BoneList[RIGHT_ELBOW] },
+                    { BoneList[RIGHT_ELBOW], BoneList[RIGHT_HAND] },
+                    { BoneList[PELVIS], BoneList[LEFT_KNEE] },
+                    { BoneList[LEFT_KNEE], BoneList[LEFT_ANKLE] },
+                    { BoneList[PELVIS], BoneList[RIGHT_KNEE] },
+                    { BoneList[RIGHT_KNEE], BoneList[RIGHT_ANKLE] }
+                };
+
+                // WorldToScreenを行い各ペアをレンダリングする.
+                for (int j = 0; j < 11; j++)
+                {
+                    Vector2 vOut0, vOut1;
+                    if (!WorldToScreen(ViewMatrix, g.g_GameRect, skeleton_list[j][0], vOut0) ||
+                        !WorldToScreen(ViewMatrix, g.g_GameRect, skeleton_list[j][1], vOut1))
+                        break;
+
+                    DrawLine(ImVec2(vOut0.x, vOut0.y), ImVec2(vOut1.x, vOut1.y), color, 1.f);
+                }
             }
 
             BoneList.clear();
