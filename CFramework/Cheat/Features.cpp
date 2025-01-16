@@ -4,20 +4,26 @@ const int ReadCount = 64;
 
 void CFramework::BunnyHop()
 {
-    if (GetAsyncKeyState(VK_SPACE))
-    {
-        int flag = pLocal->GetFlag();
-
-        if (flag == 257 || flag == 263)
+    if (GetAsyncKeyState(VK_SPACE)) {
+        if (pLocal->GetFlag() != 256)
             m.Write<uint32_t>(m.m_gClientBaseAddr + offset::m_dwForceJump, 6);
     }
 }
+
+struct Entity {
+    uint32_t address;
+    uint64_t junk0;
+};
+
+struct EntityList_t {
+    Entity entity[ReadCount]{};
+};
 
 void CFramework::UpdateList()
 {
     while (g.g_Run)
     {
-        std::vector<CEntity> ent_list(32);
+        std::vector<CEntity> ent_list(64);
 
         char pMap[128]{};
         m.ReadString(m.m_gEngineBaseAddr + offset::levelname, pMap, sizeof(pMap));
@@ -38,15 +44,15 @@ void CFramework::UpdateList()
             continue;
         }
 
+        auto list = m.Read<EntityList_t>(m.m_gClientBaseAddr + offset::dwEntityList);
+
         // EntityList
         for (int i = 0; i < ReadCount; i++)
         {
-            auto entity = m.Read<uint32_t>(m.m_gClientBaseAddr + offset::dwEntityList + (i * 0x10));
-
-            if (entity != NULL && entity != pLocal->address)
+            if (list.entity[i].address != NULL && list.entity[i].address != pLocal->address)
             {
                 CEntity p;
-                p.address = entity;
+                p.address = list.entity[i].address;
                 p.Update();
 
                 // チェック
