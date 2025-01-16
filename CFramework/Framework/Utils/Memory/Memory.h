@@ -25,7 +25,7 @@ public:
 	uintptr_t m_gEngineBaseAddr;
 
 	bool AttachProcess(const char* targetName, int mode);
-	void GetBaseAddress(const char* target0, const char* target1);
+	void GetBaseAddress();
 	void DetachProcess();
 
 	// R/WPM テンプレート

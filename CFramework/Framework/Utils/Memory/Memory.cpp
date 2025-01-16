@@ -44,13 +44,6 @@ bool Memory::AttachProcess(const char* targetName, int mode)
     return true;
 }
 
-void Memory::GetBaseAddress(const char* target0, const char* target1)
-{
-    // ここだけ書き換えた方がいいかもね
-    m_gClientBaseAddr = GetModuleBase(target0);
-    m_gEngineBaseAddr = GetModuleBase(target1);
-}
-
 void Memory::DetachProcess()
 {
     CloseHandle(m_hHandle);

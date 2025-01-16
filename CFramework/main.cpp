@@ -19,6 +19,13 @@ void Overlay::OverlayUserFunction()
 		hax->RenderMenu();
 }
 
+void Memory::GetBaseAddress()
+{
+	// ここだけ書き換えた方がいいかもね
+	m_gClientBaseAddr = GetModuleBase("client.dll");
+	m_gEngineBaseAddr = GetModuleBase("engine.dll");
+}
+
 // DEBUG時にはコンソールウィンドウを表示する.
 #if _DEBUG
 int main()
@@ -31,7 +38,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		return 1;
 
 	// ベースアドレスを取得
-	m.GetBaseAddress("client.dll", "engine.dll");
+	m.GetBaseAddress();
 
 	// Overlay
 	if (!overlay->InitOverlay("Counter-Strike Source", InitMode::WINDOW_TITLE)) // MemoryInitModeと同様.
